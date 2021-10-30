@@ -5,10 +5,6 @@ file.Delete(script_name)
 file.Open(script_name,"w")
 file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
 
---test
-
-local testvar = false
-
 local ref = gui.Reference("RAGEBOT")
 local path = gui.Tab(ref, "hubertlua", "hubertlua")
 local group = gui.Groupbox(path, "Rage AA Settings", 16,16,296,100)
