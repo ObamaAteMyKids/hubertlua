@@ -74,6 +74,14 @@ callbacks.Register("CreateMove", function(cmd)
 	gui.SetValue("rbot.antiaim.advanced.antialign", 1)
 
     if LogicCheckbox:GetValue() then
+		if globals.CurTime() - static_curtime >= 0.10 and globals.CurTime() - static_curtime <= 1 then
+			slowspeed = 5
+		else
+			slowspeed = 20
+		end
+		
+		gui.SetValue("rbot.accuracy.movement.slowspeed", slowspeed)
+		
 		local invert = LogicInverterCheckbox:GetValue()
 	        if invert then
 		        gui.SetValue("rbot.antiaim.base.rotation", math.random(58, 17))
@@ -93,7 +101,6 @@ callbacks.Register("CreateMove", function(cmd)
 				gui.SetValue("rbot.antiaim.base", [[180 "Desync"]]) 		
 			end    
     else
-  
 		if ManualLeftCheckbox:GetValue() then
 			ManualRightCheckbox:SetValue(0)
 			ManualForwardCheckbox:SetValue(0)
