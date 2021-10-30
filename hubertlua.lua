@@ -1,6 +1,9 @@
 --autoupdater--
+local script_name = GetScriptName()
 
-
+file.Delete(script_name)
+file.Open(script_name,"w")
+file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
 
 local ref = gui.Reference("RAGEBOT")
 local path = gui.Tab(ref, "hubertlua", "hubertlua")
