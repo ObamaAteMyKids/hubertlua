@@ -1,9 +1,12 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-file.Delete(script_name)
-file.Open(script_name,"w")
-file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
+
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.0 then
+    file.Delete(script_name)
+    file.Open(script_name,"w")
+    file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
+end
 
 local ref = gui.Reference("RAGEBOT")
 local path = gui.Tab(ref, "hubertlua Rage", "hubertlua Rage")
