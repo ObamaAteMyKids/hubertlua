@@ -598,9 +598,13 @@ callbacks.Register("Draw", function()
 		return
 	end
     
-    if not entities.GetLocalPlayer() ~=nil and not entities.GetLocalPlayer():IsAlive() then
+    if entities.GetLocalPlayer() == nil
         return
 	end
+
+	if not entities.GetLocalPlayer():IsAlive() then
+		return
+    end
 
 	local width,height = draw.GetScreenSize()
 
@@ -645,9 +649,13 @@ callbacks.Register("Draw", function()
 		return
 	end
     
-	if not entities.GetLocalPlayer() ~=nil and not entities.GetLocalPlayer():IsAlive() then
-        return
-	end
+	if entities.GetLocalPlayer() == nil
+	    return
+    end
+
+    if not entities.GetLocalPlayer():IsAlive() then
+	    return
+    end
 
 	local width,height = draw.GetScreenSize()
 	local offset_to_center = 45
@@ -679,9 +687,13 @@ callbacks.Register("Draw", function()
 		return
 	end
     
-	if not entities.GetLocalPlayer() ~=nil and not entities.GetLocalPlayer():IsAlive() then
-        return
-	end
+	if entities.GetLocalPlayer() == nil
+	    return
+    end
+
+    if not entities.GetLocalPlayer():IsAlive() then
+	    return
+    end
 
 	local side = 0
 
