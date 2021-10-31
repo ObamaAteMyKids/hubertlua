@@ -598,7 +598,7 @@ callbacks.Register("Draw", function()
 		return
 	end
     
-    if entities.GetLocalPlayer() == nil
+    if entities.GetLocalPlayer() == nil then
         return
 	end
 
@@ -649,7 +649,7 @@ callbacks.Register("Draw", function()
 		return
 	end
     
-	if entities.GetLocalPlayer() == nil
+	if entities.GetLocalPlayer() == nil then
 	    return
     end
 
@@ -687,7 +687,7 @@ callbacks.Register("Draw", function()
 		return
 	end
     
-	if entities.GetLocalPlayer() == nil
+	if entities.GetLocalPlayer() == nil then
 	    return
     end
 
