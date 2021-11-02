@@ -2,7 +2,7 @@
 local script_name = GetScriptName()
 
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.11 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.12 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -113,6 +113,9 @@ callbacks.Register("CreateMove", function(cmd)
 	gui.SetValue("rbot.antiaim.advanced.antialign", 1)
 
     if LogicCheckbox:GetValue() then
+	
+        gui.SetValue("misc.fakelag.factor", 3)
+
 		if static_curtime > globals.CurTime() then
 			static_curtime = globals.CurTime()
 		end
