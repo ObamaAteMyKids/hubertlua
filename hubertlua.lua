@@ -2,7 +2,7 @@
 local script_name = GetScriptName()
 
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.10 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.11 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -90,10 +90,6 @@ function get_flick()
 		flick = true
 		static_curtime = globals.CurTime()
 	end
-    
-	if static_curtime > globals.CurTime() then
-		static_curtime = globals.CurTime()
-	end
 
 	return flick
 end
@@ -117,6 +113,10 @@ callbacks.Register("CreateMove", function(cmd)
 	gui.SetValue("rbot.antiaim.advanced.antialign", 1)
 
     if LogicCheckbox:GetValue() then
+		if static_curtime > globals.CurTime() then
+			static_curtime = globals.CurTime()
+		end
+		
 		if globals.CurTime() - static_curtime >= 0.10 and globals.CurTime() - static_curtime <= 1 then
 			slowspeed = 5
 		else
