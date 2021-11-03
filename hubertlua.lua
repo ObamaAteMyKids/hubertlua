@@ -1,7 +1,7 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.52 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.53 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -1020,14 +1020,6 @@ local function on_fire_fame_event(event)
 end
 
 callbacks.Register("Draw", function()
-	if entities.GetLocalPlayer() == nil then
-	    return
-    end
-
-	if (entities.GetLocalPlayer() == nil or engine.GetMapName() == nil or engine.GetServerIP() == nil) then
-		return
-	end
-
 
     if not CustomHud:GetValue() then
 		client.SetConVar('cl_drawhud', 1, true)
@@ -1035,6 +1027,14 @@ callbacks.Register("Draw", function()
 	end
     
 	client.SetConVar('cl_drawhud', 0, true)
+
+	if entities.GetLocalPlayer() == nil then
+	    return
+    end
+
+	if (entities.GetLocalPlayer() == nil or engine.GetMapName() == nil or engine.GetServerIP() == nil or not entities.GetLocalPlayer():IsAlive()) then
+		return
+	end
 
 	local x,y = draw.GetScreenSize()
 
