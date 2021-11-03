@@ -1,7 +1,7 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.5 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.51 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -614,10 +614,6 @@ callbacks.Register("Draw", function()
 		return
     end
 
-	if CustomHud:GetValue() then
-		return
-	end
-
 	local width,height = draw.GetScreenSize()
 
 	local hs = gui.GetValue("rbot.antiaim.condition.shiftonshot")
@@ -625,15 +621,28 @@ callbacks.Register("Draw", function()
 	local offset = 15
 	local offset2 = 0
 
-	draw.Color(110, 103, 214, 255)
+	if not CustomHud:GetValue() then
+		draw.Color(110, 103, 214, 255)
+	else
+		draw.Color(255, 58, 47, 255)
+	end
+
 	draw.Text(width / 2 - (string.len(get_aa_text()) * 3), height / 2 + 10, get_aa_text())
 
 	if dt_enabled() then
-		draw.Color(49, 204, 67, 255)
+		if not CustomHud:GetValue() then
+		    draw.Color(49, 204, 67, 255)
+	    else
+		    draw.Color(255, 58, 47, 255)
+	    end
 		draw.Text(width / 2 - (string.len(get_dt_text()) * 3), height / 2 + 10 + offset, get_dt_text())
 		offset2 = 15
 	elseif hs then
-		draw.Color(49, 204, 67, 255)
+		if not CustomHud:GetValue() then
+		    draw.Color(49, 204, 67, 255)
+	    else
+		    draw.Color(255, 58, 47, 255)
+	    end
 		draw.Text(width / 2 - (string.len("hideshots") * 3), height / 2 + 10 + offset, "hideshots")
 		offset2 = 15
 	else
@@ -665,10 +674,6 @@ callbacks.Register("Draw", function()
 	    return
     end
 
-	if CustomHud:GetValue() then
-		return
-	end
-
 	is_manual_left = ManualLeftCheckbox:GetValue() 
 	is_manual_right = ManualRightCheckbox:GetValue() 
 	is_manual_forward = ManualForwardCheckbox:GetValue() 
@@ -680,7 +685,11 @@ callbacks.Register("Draw", function()
 	local green = math.sin(globals.RealTime() * 4 + 2) * 127 + 128;
 	local blue = math.sin(globals.RealTime() * 4 + 4) * 127 + 128;
 
-	draw.Color(red,green,blue, 255)
+	if not CustomHud:GetValue() then
+		draw.Color(red,green,blue, 255)
+	else
+		draw.Color(255, 58, 47, 255)
+	end
 
 	if is_manual_left then
 		draw.Triangle(width / 2 - offset_to_center, height / 2 - 10, width / 2 - offset_to_center, height / 2 + 10, width / 2 - offset_to_center - 20, height / 2)
@@ -711,10 +720,6 @@ callbacks.Register("Draw", function()
 	    return
     end
 
-	if CustomHud:GetValue() then
-		return
-	end
-
 	local side = 0
 
 	if not RageAAcheckbox:GetValue() and not LegitAAonEcheckbox:GetValue() and LegitAAcheckbox:GetValue() then 
@@ -744,7 +749,11 @@ callbacks.Register("Draw", function()
 	local green = math.sin(globals.RealTime() * 4 + 2) * 127 + 128;
 	local blue = math.sin(globals.RealTime() * 4 + 4) * 127 + 128;
 
-	draw.Color(red,green,blue, 255)
+	if not CustomHud:GetValue() then
+		draw.Color(red,green,blue, 255)
+	else
+		draw.Color(255, 58, 47, 255)
+	end
 
 	if side == 1 then
 		draw.FilledRect(width / 2 + offset_to_center, height / 2 - 10, width / 2 + offset_to_center + 4, height / 2 + 10)
@@ -760,10 +769,6 @@ callbacks.Register("Draw", function()
 		return
 	end
 
-	if CustomHud:GetValue() then
-		return
-	end
-
     text = "aimware.net | hubertlua"
     
     textlen = string.len(text) * 7
@@ -774,20 +779,22 @@ callbacks.Register("Draw", function()
 	local green = math.sin(globals.RealTime() * 4 + 2) * 127 + 128;
 	local blue = math.sin(globals.RealTime() * 4 + 4) * 127 + 128;
 
+	if not CustomHud:GetValue() then
+		draw.Color(red,green,blue, 255)
+	else
+		draw.Color(255, 58, 47, 255)
+	end
+
 	--top
-	draw.Color(red, green, blue, 255)
 	draw.FilledRect(width - textlen - 18, 8, width - 18, 10)
 	
 	--bottom
-	draw.Color(red, green, blue, 255)
 	draw.FilledRect(width - textlen - 18, textlen / 6 + 3, width - 18, textlen / 6 + 5)
 	
     --left
-	draw.Color(red, green, blue, 255)
 	draw.FilledRect(width - textlen - 20, 8, width - 18, textlen / 6 + 5)
 
 	--right
-	draw.Color(red, green, blue, 255)
 	draw.FilledRect(width - 18, 8, width - 16, textlen / 6 + 5)
 	
 	--background
@@ -795,7 +802,11 @@ callbacks.Register("Draw", function()
     draw.FilledRect(width - textlen - 18, 10, width - 18, textlen / 6 + 3)
 	
 	--text
-	draw.Color(red, green, blue, 255)
+	if not CustomHud:GetValue() then
+		draw.Color(red,green,blue, 255)
+	else
+		draw.Color(255, 58, 47, 255)
+	end
 	draw.Text(width - textlen - 13, 14, text)
 
 end)
@@ -1013,9 +1024,10 @@ callbacks.Register("Draw", function()
 	    return
     end
 
-    if not entities.GetLocalPlayer():IsAlive() then
-	    return
-    end
+	if (entities.GetLocalPlayer() == nil or engine.GetMapName() == nil or engine.GetServerIP() == nil) then
+		return
+	end
+
 
     if not CustomHud:GetValue() then
 		client.SetConVar('cl_drawhud', 1, true)
@@ -1069,6 +1081,8 @@ callbacks.Register("Draw", function()
     draw.SetTexture(texture)
     draw.Color(255, 58, 47, alpha / time)
     draw.FilledRect(-400, -400, x + 400, y + 400)
+
+	--INDICATORS--
 
 end)
 
