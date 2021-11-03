@@ -1,7 +1,7 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.51 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.52 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -964,7 +964,7 @@ end
 
 local function weapon_icon(x, y, size, clr)
     local lp = entities.GetLocalPlayer()
-    if not lp then
+    if not lp or not lp:IsAlive() then
         return
     end
     local r, g, b, a = clr[1], clr[2], clr[3], clr[4]
