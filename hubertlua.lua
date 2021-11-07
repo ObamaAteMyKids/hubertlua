@@ -1,7 +1,7 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.6 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.7 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -132,13 +132,37 @@ callbacks.Register("CreateMove", function(cmd)
 		gui.SetValue("rbot.accuracy.movement.slowspeed", slowspeed)
 		
 		local invert = LogicInverterCheckbox:GetValue()
+            
+		if FreestandRageCheckbox:GetValue() then
+			if invert then			
+				gui.SetValue("rbot.antiaim.base.rotation", math.random(-58, -17))	
+			else		
+				gui.SetValue("rbot.antiaim.base.rotation", math.random(58, 17))
+			end	
+			gui.SetValue("rbot.antiaim.left.rotation", math.random(-58, -17))
+			gui.SetValue("rbot.antiaim.right.rotation", math.random(58, 17))
+			gui.SetValue("rbot.antiaim.advanced.autodir.edges", 1)
+			
+			if get_flick() then
+				if invert then			
+					gui.SetValue("rbot.antiaim.base", [[-90 "Desync"]])	
+				else		
+					gui.SetValue("rbot.antiaim.base", [[90 "Desync"]])		
+				end				
+				gui.SetValue("rbot.antiaim.left", [[-90 "Desync"]])	
+				gui.SetValue("rbot.antiaim.right", [[90 "Desync"]])		
+			else
+				gui.SetValue("rbot.antiaim.base", [[180 "Desync"]]) 	 			
+				gui.SetValue("rbot.antiaim.left", [[180 "Desync"]])	
+				gui.SetValue("rbot.antiaim.right", [[180 "Desync"]])			
+			end    
+		else           		
+			gui.SetValue("rbot.antiaim.advanced.autodir.edges", 0)
 	        if invert then
 		        gui.SetValue("rbot.antiaim.base.rotation", math.random(58, 17))
 	        else
 		        gui.SetValue("rbot.antiaim.base.rotation", math.random(-58, -17))
 	        end
-
-		    gui.SetValue("rbot.antiaim.advanced.autodir.edges", 0)
 
 			if get_flick() then 		
 				if invert then			
@@ -149,6 +173,7 @@ callbacks.Register("CreateMove", function(cmd)
 			else
 				gui.SetValue("rbot.antiaim.base", [[180 "Desync"]]) 		
 			end    
+		end
     else
 		if ManualLeftCheckbox:GetValue() then
 			ManualRightCheckbox:SetValue(0)
@@ -189,8 +214,7 @@ callbacks.Register("CreateMove", function(cmd)
 					gui.SetValue("rbot.antiaim.base.rotation", -17)			
 					gui.SetValue("rbot.antiaim.advanced.autodir.edges", 0)
 				end
-		    end     
-		        
+		    end             
 			--HALFDELTA--
         elseif HalfDeltaCheckbox:GetValue() then
 			if JitterRageCheckbox:GetValue() then   
@@ -207,7 +231,6 @@ callbacks.Register("CreateMove", function(cmd)
 					gui.SetValue("rbot.antiaim.advanced.autodir.edges", 0)
 				end		
 			end
-            
 				--HIGHDELTA--
 		else      
 			if JitterRageCheckbox:GetValue() then
