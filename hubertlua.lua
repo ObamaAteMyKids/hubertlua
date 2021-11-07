@@ -1,7 +1,7 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.53 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.6 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -66,6 +66,8 @@ local AspectRatioSlider = gui.Slider(group4, "aspect_ratio", "AspectRatio", 0, 0
 AspectRatioSlider:SetDescription("Stretches your screen")
 local CustomHud = gui.Checkbox(group4, "custom_hud", "aimware hud", false)
 CustomHud:SetDescription("Changes the hud to match aimware")
+local RainbowBacktrackChamsCheckbox = gui.Checkbox(group4, "rainbow_bt", "Rainbow Backtrack Chams", false)
+RainbowBacktrackChamsCheckbox:SetDescription("Makes the backtrack chams rainbow colored")
 
 local group5 = gui.Groupbox(path2, "Buybot", 328,16,296,100)
 local BuybotCheckbox = gui.Checkbox(group5, "buybot", "Buybot", false)
@@ -981,7 +983,7 @@ end
 
 --DRAW THE CUSTOM HUD NIGGERS--
 
-local time = 0.25
+local time = 0.1
 
 local alpha = 0
 local globals_frametime = globals.FrameTime
@@ -1080,7 +1082,7 @@ callbacks.Register("Draw", function()
 
     draw.SetTexture(texture)
     draw.Color(255, 58, 47, alpha / time)
-    draw.FilledRect(-400, -400, x + 400, y + 400)
+    draw.FilledRect(-300, -300, x + 300, y + 300)
 
 	--INDICATORS--
 
@@ -1092,17 +1094,11 @@ client.AllowListener("player_death")
 --aspect ratio--
 
 callbacks.Register("Draw", function()
-	if AspectRatioSlider:GetValue() == 0 then
-	    return
-    end
-
-	local num = AspectRatioSlider:GetValue() / 100
-    
-	client.SetConVar('r_aspectratio', num, true)
+	client.SetConVar('r_aspectratio', AspectRatioSlider:GetValue() / 100, true)
 end)
 
 
---THIS BELOW IS ALMOST FULLY PASTED I DO NOT TAKE ANY CREDITS--
+--THIS KILLFEED BELOW IS ALMOST FULLY PASTED I DO NOT TAKE ANY CREDITS--
 
 -- settings
 local initial_height_modifier = 0.0725 -- vanilla is 0.0725
@@ -1508,4 +1504,17 @@ callbacks.Register("Draw", function()
             draw.Text(current_width + 10, start_y + y_offset, victim_name)
 		end
 	end
-end)	
+end)
+
+callbacks.Register("Draw", function()
+	if not RainbowBacktrackChamsCheckbox:GetValue() then
+		return
+	end
+
+	local red = math.sin(globals.RealTime() * 4) * 127 + 128;
+	local green = math.sin(globals.RealTime() * 4 + 2) * 127 + 128;
+	local blue = math.sin(globals.RealTime() * 4 + 4) * 127 + 128;
+
+	gui.SetValue("esp.chams.backtrack.visible.clr", red,green,blue,255 )
+	gui.SetValue("esp.chams.backtrack.occluded.clr", red,green,blue,255 )
+end)
