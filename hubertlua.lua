@@ -1,7 +1,7 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.7 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.8 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -135,12 +135,12 @@ callbacks.Register("CreateMove", function(cmd)
             
 		if FreestandRageCheckbox:GetValue() then
 			if invert then			
-				gui.SetValue("rbot.antiaim.base.rotation", math.random(-58, -17))	
+				gui.SetValue("rbot.antiaim.base.rotation", math.random(-58, 17))	
 			else		
-				gui.SetValue("rbot.antiaim.base.rotation", math.random(58, 17))
+				gui.SetValue("rbot.antiaim.base.rotation", math.random(58, -17))
 			end	
-			gui.SetValue("rbot.antiaim.left.rotation", math.random(-58, -17))
-			gui.SetValue("rbot.antiaim.right.rotation", math.random(58, 17))
+			gui.SetValue("rbot.antiaim.left.rotation", math.random(-58, 17))
+			gui.SetValue("rbot.antiaim.right.rotation", math.random(58, -17))
 			gui.SetValue("rbot.antiaim.advanced.autodir.edges", 1)
 			
 			if get_flick() then
@@ -159,9 +159,9 @@ callbacks.Register("CreateMove", function(cmd)
 		else           		
 			gui.SetValue("rbot.antiaim.advanced.autodir.edges", 0)
 	        if invert then
-		        gui.SetValue("rbot.antiaim.base.rotation", math.random(58, 17))
+		        gui.SetValue("rbot.antiaim.base.rotation", math.random(58, -17))
 	        else
-		        gui.SetValue("rbot.antiaim.base.rotation", math.random(-58, -17))
+		        gui.SetValue("rbot.antiaim.base.rotation", math.random(-58, 17))
 	        end
 
 			if get_flick() then 		
