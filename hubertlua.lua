@@ -1,7 +1,7 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.95 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 3.0 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -10,6 +10,7 @@ end
 local ref = gui.Reference("RAGEBOT")
 local path = gui.Tab(ref, "hubertlua.rage", "hubertlua Rage")
 local path2 = gui.Tab(ref, "hubertlua.misc", "hubertlua Misc")
+local path3 = gui.Tab(ref, "hubertlua.menu", "hubertlua Menu")
 
 --Rage--
 local group = gui.Groupbox(path, "Rage AA Settings", 16,16,296,100)
@@ -86,6 +87,12 @@ local Buybot3Checkbox3 = gui.Checkbox(group5, "buybot3_zeus", "Buy Zeus", false)
 Buybot3Checkbox3:SetDescription("Buys a taser")
 local Buybot3Checkbox4 = gui.Checkbox(group5, "buybot3_defuser", "Buy Defuse Kit", false)
 Buybot3Checkbox4:SetDescription("Buys a defuse kit")
+
+local group6 = gui.Groupbox(path3, "Menu Themes", 16,16,296,100)
+local main_theme = gui.Combobox(group6, "main_theme", "Main Theme", "None", "Dark", "Light")
+local main_alpha_slider = gui.Slider(group6, "main_transparency", "Main Theme Transparency", 255, 0, 255)
+local color_theme = gui.Combobox(group6, "color_theme", "Color Theme", "None", "Red", "Blue", "Pink", "Yellow", "Green", "Orange", "Rainbow")
+local color_alpha_slider = gui.Slider(group6, "color_transparency", "Color Theme Transparency", 255, 0, 255)
 
 static_curtime = globals.CurTime()
 
@@ -797,6 +804,61 @@ end)
 
 --WATERMARK--
 
+function rectangle(x, y, w, h, r, g, b, a)
+    draw.Color(r, g, b, a)
+
+    local w = (w < 0) and (x - math.abs(w)) or x + w
+    local h = (h < 0) and (y - math.abs(h)) or y + h
+
+    draw.FilledRect(x, y, w, h)
+end
+
+function gradient(x, y, w, h, r1, g1, b1, a1, r2, g2, b2, a2, ltr)
+    local abs_w = math.abs(w)
+    local abs_h = math.abs(h)
+
+    if ltr then
+        if a1 ~= 0 then
+            if a1 and a2 ~= 255 then
+                for i = 1, abs_w do
+                    local a1 = i / abs_w * a1
+                    local x = (w < 0) and (x + w + i - 1) or (x + i - 1)
+                    rectangle(x, y, 1, h, r1, g1, b1, a1)
+                end
+            else
+                rectangle(x, y, w, h, r1, g1, b1, a1)
+            end
+        end
+
+        if a2 ~= 0 then
+            for i = 1, abs_w do
+                local a2 = i / abs_w * a2
+                local x = (w < 0) and (x - i) or (x + w - i)
+                rectangle(x, y, 1, h, r2, g2, b2, a2)
+            end
+        end
+    else
+        if a1 ~= 0 then
+            if a1 and a2 ~= 255 then
+                for i = 1, abs_h do
+                    local a1 = i / abs_h * a1
+                    local y = (h < 0) and (y + h + i - 1) or (y + i - 1)
+                    rectangle(x, y, w, 1, r1, g1, b1, a1)
+                end
+            else
+                rectangle(x, y, w, h, r1, g1, b1, a1)
+            end
+        end
+        if a2 ~= 0 then
+            for i = 1, abs_h do
+                local a2 = i / abs_h * a2
+                local y = (h < 0) and (y - i) or (y + h - i)
+                rectangle(x, y, w, 1, r2, g2, b2, a2)
+            end
+        end
+    end
+end
+
 callbacks.Register("Draw", function()
 	if not WatermarkCheckbox:GetValue() then
 		return
@@ -807,39 +869,25 @@ callbacks.Register("Draw", function()
     textlen = string.len(text) * 7
 
 	local width,height = draw.GetScreenSize()
-    
-	local red = math.sin(globals.RealTime() * 4) * 127 + 128;
-	local green = math.sin(globals.RealTime() * 4 + 2) * 127 + 128;
-	local blue = math.sin(globals.RealTime() * 4 + 4) * 127 + 128;
 
-	if not CustomHud:GetValue() then
-		draw.Color(red,green,blue, 255)
-	else
-		draw.Color(255, 58, 47, 255)
-	end
-
-	--top
-	draw.FilledRect(width - textlen - 18, 8, width - 18, 10)
-	
-	--bottom
-	draw.FilledRect(width - textlen - 18, textlen / 6 + 3, width - 18, textlen / 6 + 5)
-	
-    --left
-	draw.FilledRect(width - textlen - 20, 8, width - 18, textlen / 6 + 5)
+	--left
+	gradient(width - textlen - 20, 8, 2, textlen / 7, 0, 0, 0, 0, 255, 58, 47, 255, false)
 
 	--right
-	draw.FilledRect(width - 18, 8, width - 16, textlen / 6 + 5)
+	gradient(width - 18, 10, 2, textlen / 7 - 2, 255, 58, 47, 255, 0, 0, 0, 0, false)
+
+	--top
+	gradient(width - textlen - 20, 8, textlen / 3, 2, 0, 0, 0, 0, 255, 58, 47, 255, true)
 	
+	--bottom
+	gradient(width - 69, textlen / 6 + 3, textlen / 3, 2, 255, 58, 47, 255, 0, 0, 0, 0, true)
+
 	--background
-	draw.Color(30, 30, 30, 255)
+	draw.Color(10, 10, 10, 255)
     draw.FilledRect(width - textlen - 18, 10, width - 18, textlen / 6 + 3)
 	
 	--text
-	if not CustomHud:GetValue() then
-		draw.Color(red,green,blue, 255)
-	else
-		draw.Color(255, 58, 47, 255)
-	end
+	draw.Color(255, 255, 255, 255)
 	draw.Text(width - textlen - 13, 14, text)
 
 end)
@@ -1622,5 +1670,168 @@ callbacks.Register("Draw", function()
 		draw.Line(x / 2 + 5 * factor, y / 2 + 5 * factor, x / 2 + 12 * factor, y / 2 + 12 * factor)
 		draw.Line(x / 2 + 5 * factor, y / 2 - 5 * factor, x / 2 + 12 * factor, y / 2 - 12 * factor)
 	end
+
+end)
+
+--MENU THEMES--
+
+set = gui.SetValue
+
+callbacks.Register("Draw", function()
+    if main_theme:GetValue() == 0 then
+        return
+    end
+
+    if main_theme:GetValue() == 1 then
+        set("theme.footer.bg", 0, 0, 0, main_alpha_slider:GetValue())
+        set("theme.header.bg", 0, 0, 0, main_alpha_slider:GetValue())
+        set("theme.nav.bg", 0, 0, 0, main_alpha_slider:GetValue())
+        set("theme.nav.active", 0, 0, 0, main_alpha_slider:GetValue())
+        set("theme.tablist.tabactivebg", 0, 0, 0, main_alpha_slider:GetValue())
+        set("theme.ui.bg1", 24, 24, 24, main_alpha_slider:GetValue())
+    elseif main_theme:GetValue() == 2 then
+        set("theme.footer.bg", 120, 120, 120, main_alpha_slider:GetValue())
+        set("theme.header.bg", 120, 120, 120, main_alpha_slider:GetValue())
+        set("theme.nav.bg", 120, 120, 120, main_alpha_slider:GetValue())
+        set("theme.nav.active", 120, 120, 120, main_alpha_slider:GetValue())
+        set("theme.tablist.tabactivebg", 120, 120, 120, main_alpha_slider:GetValue())
+        set("theme.ui.bg1", 120, 120, 120, main_alpha_slider:GetValue())
+    end
+    
+    if color_theme:GetValue() == 0 then
+        return
+    end
+
+       
+       --RED
+    if color_theme:GetValue() == 1 then
+        set("theme.footer.text", 255, 58, 47, color_alpha_slider:GetValue())
+
+        set("theme.header.line", 255, 58, 47, color_alpha_slider:GetValue())
+        set("theme.header.text", 255, 58, 47, color_alpha_slider:GetValue())
+
+        set("theme.nav.shadow", 255, 58, 47, color_alpha_slider:GetValue())
+        set("theme.nav.text", 255, 58, 47, color_alpha_slider:GetValue())
+
+        set("theme.tablist.shadow", 255, 58, 47, color_alpha_slider:GetValue())
+        set("theme.tablist.tabdecorator", 255, 58, 47, color_alpha_slider:GetValue())
+        set("theme.tablist.text", 255, 58, 47, color_alpha_slider:GetValue())
+        set("theme.tablist.textactive", 255, 58, 47, color_alpha_slider:GetValue())
+
+        set("theme.ui.bg2", 255, 58, 47, color_alpha_slider:GetValue())
+        set("theme.ui.border", 255, 58, 47, color_alpha_slider:GetValue())
+
+        --BLUE
+    elseif color_theme:GetValue() == 2 then
+        set("theme.footer.text", 52, 110, 235, color_alpha_slider:GetValue())
+
+        set("theme.header.line", 52, 110, 235, color_alpha_slider:GetValue())
+        set("theme.header.text", 52, 110, 235, color_alpha_slider:GetValue())
+
+        set("theme.nav.shadow", 52, 110, 235, color_alpha_slider:GetValue())
+        set("theme.nav.text", 52, 110, 235, color_alpha_slider:GetValue())
+
+        set("theme.tablist.shadow", 52, 110, 235, color_alpha_slider:GetValue())
+        set("theme.tablist.tabdecorator", 52, 110, 235, color_alpha_slider:GetValue())
+        set("theme.tablist.text", 52, 110, 235, color_alpha_slider:GetValue())
+        set("theme.tablist.textactive", 52, 110, 235, color_alpha_slider:GetValue())
+
+        set("theme.ui.bg2", 52, 110, 235, color_alpha_slider:GetValue())
+        set("theme.ui.border", 52, 110, 235, color_alpha_slider:GetValue())
+
+        --PINK
+    elseif color_theme:GetValue() == 3 then
+        set("theme.footer.text", 255, 147, 255, color_alpha_slider:GetValue())
+
+        set("theme.header.line", 255, 147, 255, color_alpha_slider:GetValue())
+        set("theme.header.text", 255, 147, 255, color_alpha_slider:GetValue())
+
+        set("theme.nav.shadow", 255, 147, 255, color_alpha_slider:GetValue())
+        set("theme.nav.text", 255, 147, 255, color_alpha_slider:GetValue())
+
+        set("theme.tablist.shadow", 255, 147, 255, color_alpha_slider:GetValue())
+        set("theme.tablist.tabdecorator", 255, 147, 255, color_alpha_slider:GetValue())
+        set("theme.tablist.text", 255, 147, 255, color_alpha_slider:GetValue())
+        set("theme.tablist.textactive", 255, 147, 255, color_alpha_slider:GetValue())
+
+        set("theme.ui.bg2", 255, 147, 255, color_alpha_slider:GetValue())
+        set("theme.ui.border", 255, 147, 255, color_alpha_slider:GetValue())
+
+        --YELLOW
+    elseif color_theme:GetValue() == 4 then
+        set("theme.footer.text", 235, 192, 52, color_alpha_slider:GetValue())
+
+        set("theme.header.line", 235, 192, 52, color_alpha_slider:GetValue())
+        set("theme.header.text", 235, 192, 52, color_alpha_slider:GetValue())
+
+        set("theme.nav.shadow", 235, 192, 52, color_alpha_slider:GetValue())
+        set("theme.nav.text", 235, 192, 52, color_alpha_slider:GetValue())
+
+        set("theme.tablist.shadow", 235, 192, 52, color_alpha_slider:GetValue())
+        set("theme.tablist.tabdecorator", 235, 192, 52, color_alpha_slider:GetValue())
+        set("theme.tablist.text", 235, 192, 52, color_alpha_slider:GetValue())
+        set("theme.tablist.textactive", 235, 192, 52, color_alpha_slider:GetValue())
+
+        set("theme.ui.bg2", 235, 192, 52, color_alpha_slider:GetValue())
+        set("theme.ui.border", 235, 192, 52, color_alpha_slider:GetValue())
+        
+        --GREEN
+    elseif color_theme:GetValue() == 5 then
+        set("theme.footer.text", 57, 222, 42, color_alpha_slider:GetValue())
+
+        set("theme.header.line", 57, 222, 42, color_alpha_slider:GetValue())
+        set("theme.header.text", 57, 222, 42, color_alpha_slider:GetValue())
+
+        set("theme.nav.shadow", 57, 222, 42, color_alpha_slider:GetValue())
+        set("theme.nav.text", 57, 222, 42, color_alpha_slider:GetValue())
+
+        set("theme.tablist.shadow", 57, 222, 42, color_alpha_slider:GetValue())
+        set("theme.tablist.tabdecorator", 57, 222, 42, color_alpha_slider:GetValue())
+        set("theme.tablist.text", 57, 222, 42, color_alpha_slider:GetValue())
+        set("theme.tablist.textactive", 57, 222, 42, color_alpha_slider:GetValue())
+
+        set("theme.ui.bg2", 57, 222, 42, color_alpha_slider:GetValue())
+        set("theme.ui.border", 57, 222, 42, color_alpha_slider:GetValue())
+        
+        --ORANGE
+    elseif color_theme:GetValue() == 6 then
+        set("theme.footer.text", 245, 143, 20, color_alpha_slider:GetValue())
+
+        set("theme.header.line", 245, 143, 20, color_alpha_slider:GetValue())
+        set("theme.header.text", 245, 143, 20, color_alpha_slider:GetValue())
+
+        set("theme.nav.shadow", 245, 143, 20, color_alpha_slider:GetValue())
+        set("theme.nav.text", 245, 143, 20, color_alpha_slider:GetValue())
+
+        set("theme.tablist.shadow", 245, 143, 20, color_alpha_slider:GetValue())
+        set("theme.tablist.tabdecorator", 245, 143, 20, color_alpha_slider:GetValue())
+        set("theme.tablist.text", 245, 143, 20, color_alpha_slider:GetValue())
+        set("theme.tablist.textactive", 245, 143, 20, color_alpha_slider:GetValue())
+
+        set("theme.ui.bg2", 245, 143, 20, color_alpha_slider:GetValue())
+        set("theme.ui.border", 245, 143, 20, color_alpha_slider:GetValue())
+        
+        --RAINBOW
+    elseif color_theme:GetValue() == 7 then
+        local red = math.sin(globals.RealTime() * 4) * 127 + 128;
+	    local green = math.sin(globals.RealTime() * 4 + 2) * 127 + 128;
+	    local blue = math.sin(globals.RealTime() * 4 + 4) * 127 + 128;
+
+        set("theme.footer.text", red, green, blue, color_alpha_slider:GetValue())
+
+        set("theme.header.line", red, green, blue, color_alpha_slider:GetValue())
+        set("theme.header.text", red, green, blue, color_alpha_slider:GetValue())
+
+        set("theme.nav.shadow", red, green, blue, color_alpha_slider:GetValue())
+        set("theme.nav.text", red, green, blue, color_alpha_slider:GetValue())
+
+        set("theme.tablist.shadow", red, green, blue, color_alpha_slider:GetValue())
+        set("theme.tablist.tabdecorator", red, green, blue, color_alpha_slider:GetValue())
+        set("theme.tablist.text", red, green, blue, color_alpha_slider:GetValue())
+        set("theme.tablist.textactive", red, green, blue, color_alpha_slider:GetValue())
+
+        set("theme.ui.bg2", red, green, blue, color_alpha_slider:GetValue())
+        set("theme.ui.border", red, green, blue, color_alpha_slider:GetValue())
+    end
 
 end)
