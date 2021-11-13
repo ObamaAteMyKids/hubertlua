@@ -1,7 +1,7 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.9 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.91 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -1604,7 +1604,7 @@ callbacks.Register("Draw", function()
 
 	local poop = 255 / 0.2 * globals.FrameTime()
 
-    if crosshair_time + 0.2 > globals.RealTime() then
+    if crosshair_time + 0.5 > globals.RealTime() then
         crossalpha = 255
     else
         crossalpha = crossalpha - poop
@@ -1613,7 +1613,7 @@ callbacks.Register("Draw", function()
 	x,y = draw.GetScreenSize()
 	
 	if crossalpha > 0 then
-		draw.Color(255, 255, 255, crossalpha)
+		draw.Color(200, 200, 200, crossalpha)
 		draw.Line(x / 2 - 5, y / 2 - 5, x / 2 - 12, y / 2 - 12)
 		draw.Line(x / 2 - 5, y / 2 + 5, x / 2 - 12, y / 2 + 12)
 		draw.Line(x / 2 + 5, y / 2 + 5, x / 2 + 12, y / 2 + 12)
