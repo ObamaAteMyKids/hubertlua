@@ -1,7 +1,7 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.91 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.95 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -1592,6 +1592,7 @@ end
 callbacks.Register("FireGameEvent", hitshit)
 
 local crossalpha = 0
+local factor = 0
 
 callbacks.Register("Draw", function()
 	if entities.GetLocalPlayer() == nil then 
@@ -1602,11 +1603,13 @@ callbacks.Register("Draw", function()
 		return
 	end
 
-	local poop = 255 / 0.2 * globals.FrameTime()
+	local poop = 255 / 0.25 * globals.FrameTime()
 
-    if crosshair_time + 0.5 > globals.RealTime() then
+    if crosshair_time + 0.25 > globals.RealTime() then
+		factor = 1
         crossalpha = 255
     else
+		factor = factor - (poop / 255)
         crossalpha = crossalpha - poop
     end
 
@@ -1614,10 +1617,10 @@ callbacks.Register("Draw", function()
 	
 	if crossalpha > 0 then
 		draw.Color(200, 200, 200, crossalpha)
-		draw.Line(x / 2 - 5, y / 2 - 5, x / 2 - 12, y / 2 - 12)
-		draw.Line(x / 2 - 5, y / 2 + 5, x / 2 - 12, y / 2 + 12)
-		draw.Line(x / 2 + 5, y / 2 + 5, x / 2 + 12, y / 2 + 12)
-		draw.Line(x / 2 + 5, y / 2 - 5, x / 2 + 12, y / 2 - 12)
+		draw.Line(x / 2 - 5 * factor, y / 2 - 5 * factor, x / 2 - 12 * factor, y / 2 - 12 * factor)
+		draw.Line(x / 2 - 5 * factor, y / 2 + 5 * factor, x / 2 - 12 * factor, y / 2 + 12 * factor)
+		draw.Line(x / 2 + 5 * factor, y / 2 + 5 * factor, x / 2 + 12 * factor, y / 2 + 12 * factor)
+		draw.Line(x / 2 + 5 * factor, y / 2 - 5 * factor, x / 2 + 12 * factor, y / 2 - 12 * factor)
 	end
 
 end)
