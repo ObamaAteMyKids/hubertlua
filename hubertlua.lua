@@ -1,7 +1,7 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 3.0 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 3.1 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -877,10 +877,10 @@ callbacks.Register("Draw", function()
 	gradient(width - 18, 10, 2, textlen / 7 - 2, 255, 58, 47, 255, 0, 0, 0, 0, false)
 
 	--top
-	gradient(width - textlen - 20, 8, textlen / 3, 2, 0, 0, 0, 0, 255, 58, 47, 255, true)
+	gradient(width - textlen - 20, 8, textlen / 2, 2, 0, 0, 0, 0, 255, 58, 47, 255, true)
 	
 	--bottom
-	gradient(width - 69, textlen / 6 + 3, textlen / 3, 2, 255, 58, 47, 255, 0, 0, 0, 0, true)
+	gradient(width - (textlen / 2) - 16, textlen / 6 + 3, textlen / 2, 2, 255, 58, 47, 255, 0, 0, 0, 0, true)
 
 	--background
 	draw.Color(10, 10, 10, 255)
