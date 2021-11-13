@@ -1,7 +1,7 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.8 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 2.9 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -68,6 +68,8 @@ local CustomHud = gui.Checkbox(group4, "custom_hud", "aimware hud", false)
 CustomHud:SetDescription("Changes the hud to match aimware")
 local RainbowBacktrackChamsCheckbox = gui.Checkbox(group4, "rainbow_bt", "Rainbow Backtrack Chams", false)
 RainbowBacktrackChamsCheckbox:SetDescription("Makes the backtrack chams rainbow colored")
+local CrossHairHitmarkerCheckbox = gui.Checkbox(group4, "crosshair_hitmarker", "Crosshair Hitmarker", false)
+CrossHairHitmarkerCheckbox:SetDescription("Shows a hitmarker on ur crosshair when you hit an enemy")
 
 local group5 = gui.Groupbox(path2, "Buybot", 328,16,296,100)
 local BuybotCheckbox = gui.Checkbox(group5, "buybot", "Buybot", false)
@@ -652,7 +654,11 @@ callbacks.Register("Draw", function()
 		draw.Color(255, 58, 47, 255)
 	end
 
-	draw.Text(width / 2 - (string.len(get_aa_text()) * 3), height / 2 + 10, get_aa_text())
+	local string_x, string_y = draw.GetTextSize(get_aa_text())
+	local string_x2, string_y2 = draw.GetTextSize(get_dt_text())
+	local string_x3, string_y3 = draw.GetTextSize("hideshots")
+
+	draw.Text(width / 2 - (string_x / 2), height / 2 + 10, get_aa_text())
 
 	if dt_enabled() then
 		if not CustomHud:GetValue() then
@@ -660,7 +666,7 @@ callbacks.Register("Draw", function()
 	    else
 		    draw.Color(255, 58, 47, 255)
 	    end
-		draw.Text(width / 2 - (string.len(get_dt_text()) * 3), height / 2 + 10 + offset, get_dt_text())
+		draw.Text(width / 2 - (string_x2 / 2), height / 2 + 10 + offset, get_dt_text())
 		offset2 = 15
 	elseif hs then
 		if not CustomHud:GetValue() then
@@ -668,7 +674,7 @@ callbacks.Register("Draw", function()
 	    else
 		    draw.Color(255, 58, 47, 255)
 	    end
-		draw.Text(width / 2 - (string.len("hideshots") * 3), height / 2 + 10 + offset, "hideshots")
+		draw.Text(width / 2 - (string_x3 / 2), height / 2 + 10 + offset, "hideshots")
 		offset2 = 15
 	else
 		offset2 = 0
@@ -680,8 +686,10 @@ callbacks.Register("Draw", function()
 		mindmg = ""
 	end
 
+	local string_x4, string_y4 = draw.GetTextSize(mindmg)
+
 	draw.Color(214, 103, 146, 255)
-	draw.Text(width / 2 - (string.len(mindmg) * 3), height/2 + 10 + offset + offset2, mindmg)
+	draw.Text(width / 2 - (string_x4 / 2), height / 2 + 10 + offset + offset2, mindmg)
 end)
 
 --AA ARROWS--
@@ -1084,7 +1092,13 @@ callbacks.Register("Draw", function()
 
 	--HEALTH/ARMOR--
 
-	local health_size_thing = entities.GetLocalPlayer():GetHealth() * 156 / entities.GetLocalPlayer():GetMaxHealth()
+	local helth = entities.GetLocalPlayer():GetHealth()
+
+	if helth > 100 then
+		helth = 100
+	end
+
+	local health_size_thing = helth * 156 / 100
 
 	draw.Color(0, 0, 0, 255)
 	draw.FilledRect(20, y - 50, 180, y - 30)
@@ -1092,7 +1106,13 @@ callbacks.Register("Draw", function()
 	draw.Text(100 - draw.GetTextSize("HEALTH") / 2, y - 60, "HEALTH")
 	draw.FilledRect(22, y - 48, 22 + health_size_thing, y - 32)
 
-	local armor_size_thing = entities.GetLocalPlayer():GetProp("m_ArmorValue") * 156 / 100
+	local susarmor = entities.GetLocalPlayer():GetProp("m_ArmorValue")
+
+	if susarmor > 100 then
+		susarmor = 100
+	end
+
+	local armor_size_thing = susarmor * 156 / 100
 
 	draw.Color(0, 0, 0, 255)
 	draw.FilledRect(200, y - 50, 360, y - 30)
@@ -1529,6 +1549,8 @@ callbacks.Register("Draw", function()
 	end
 end)
 
+--rainbow bt chams--
+
 callbacks.Register("Draw", function()
 	if not RainbowBacktrackChamsCheckbox:GetValue() then
 		return
@@ -1540,4 +1562,62 @@ callbacks.Register("Draw", function()
 
 	gui.SetValue("esp.chams.backtrack.visible.clr", red,green,blue,255 )
 	gui.SetValue("esp.chams.backtrack.occluded.clr", red,green,blue,255 )
+end)
+
+--crosshair hitmarker--
+local crosshair_time = 0
+
+local function hitshit(e)
+	if entities.GetLocalPlayer() == nil then 
+		return 
+	end
+
+	if e:GetName() ~= "player_hurt" then 
+		return
+	end
+
+	if not (client.GetPlayerIndexByUserID(e:GetInt("attacker")) == client.GetLocalPlayerIndex() and client.GetPlayerIndexByUserID(e:GetInt("userid")) ~= client.GetLocalPlayerIndex()) then
+		return
+	end
+
+	if not CrossHairHitmarkerCheckbox:GetValue() then
+		return
+	end
+
+    if (e:GetName() == "player_hurt") then
+		crosshair_time = globals.RealTime()
+	end
+end
+
+callbacks.Register("FireGameEvent", hitshit)
+
+local crossalpha = 0
+
+callbacks.Register("Draw", function()
+	if entities.GetLocalPlayer() == nil then 
+		return 
+	end
+
+	if not CrossHairHitmarkerCheckbox:GetValue() then
+		return
+	end
+
+	local poop = 255 / 0.2 * globals.FrameTime()
+
+    if crosshair_time + 0.2 > globals.RealTime() then
+        crossalpha = 255
+    else
+        crossalpha = crossalpha - poop
+    end
+
+	x,y = draw.GetScreenSize()
+	
+	if crossalpha > 0 then
+		draw.Color(255, 255, 255, crossalpha)
+		draw.Line(x / 2 - 5, y / 2 - 5, x / 2 - 12, y / 2 - 12)
+		draw.Line(x / 2 - 5, y / 2 + 5, x / 2 - 12, y / 2 + 12)
+		draw.Line(x / 2 + 5, y / 2 + 5, x / 2 + 12, y / 2 + 12)
+		draw.Line(x / 2 + 5, y / 2 - 5, x / 2 + 12, y / 2 - 12)
+	end
+
 end)
