@@ -1,7 +1,7 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 3.1 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 3.2 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -71,6 +71,11 @@ local RainbowBacktrackChamsCheckbox = gui.Checkbox(group4, "rainbow_bt", "Rainbo
 RainbowBacktrackChamsCheckbox:SetDescription("Makes the backtrack chams rainbow colored")
 local CrossHairHitmarkerCheckbox = gui.Checkbox(group4, "crosshair_hitmarker", "Crosshair Hitmarker", false)
 CrossHairHitmarkerCheckbox:SetDescription("Shows a hitmarker on ur crosshair when you hit an enemy")
+local CustomHitsoundCheckbox = gui.Checkbox(group4, "custom_hitsound", "Custom Hitsound", false)
+CustomHitsoundCheckbox:SetDescription("The sound file needs to be in the csgo sound folder")
+local CustomHitsoundText = gui.Editbox(group4, "", "Custom Hitsound")
+CustomHitsoundCheckbox:SetDescription("example: bell.wav")
+CustomHitsoundText:SetWidth(260)
 
 local group5 = gui.Groupbox(path2, "Buybot", 328,16,296,100)
 local BuybotCheckbox = gui.Checkbox(group5, "buybot", "Buybot", false)
@@ -1835,3 +1840,28 @@ callbacks.Register("Draw", function()
     end
 
 end)
+
+local function hitsoundshit(e)
+	if entities.GetLocalPlayer() == nil then 
+		return 
+	end
+
+	if e:GetName() ~= "player_hurt" then 
+		return
+	end
+
+	if not (client.GetPlayerIndexByUserID(e:GetInt("attacker")) == client.GetLocalPlayerIndex() and client.GetPlayerIndexByUserID(e:GetInt("userid")) ~= client.GetLocalPlayerIndex()) then
+		return
+	end
+
+	if not CustomHitsoundCheckbox:GetValue() then
+		return
+	end
+
+    if (e:GetName() == "player_hurt") then
+		local hitsoundcmd = "play " .. CustomHitsoundText:GetValue();
+        client.Command(hitsoundcmd, true);
+	end
+end
+
+callbacks.Register("FireGameEvent", hitsoundshit)
