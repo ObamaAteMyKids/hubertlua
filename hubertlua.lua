@@ -1,7 +1,7 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 3.2 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 4.0 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -71,11 +71,16 @@ local RainbowBacktrackChamsCheckbox = gui.Checkbox(group4, "rainbow_bt", "Rainbo
 RainbowBacktrackChamsCheckbox:SetDescription("Makes the backtrack chams rainbow colored")
 local CrossHairHitmarkerCheckbox = gui.Checkbox(group4, "crosshair_hitmarker", "Crosshair Hitmarker", false)
 CrossHairHitmarkerCheckbox:SetDescription("Shows a hitmarker on ur crosshair when you hit an enemy")
+
+local FastHitmarkerCheckbox = gui.Checkbox(group4, "fast_hitmarker", "Fast Hitmarker", false)
+FastHitmarkerCheckbox:SetDescription("Makes the hitmarker disappear faster")
 local CustomHitsoundCheckbox = gui.Checkbox(group4, "custom_hitsound", "Custom Hitsound", false)
 CustomHitsoundCheckbox:SetDescription("The sound file needs to be in the csgo sound folder")
 local CustomHitsoundText = gui.Editbox(group4, "", "Custom Hitsound")
 CustomHitsoundCheckbox:SetDescription("example: bell.wav")
 CustomHitsoundText:SetWidth(260)
+local RadioCheckbox = gui.Checkbox(group4, "radio", "Radio", false)
+RadioCheckbox:SetDescription("Enables the radio")
 
 local group5 = gui.Groupbox(path2, "Buybot", 328,16,296,100)
 local BuybotCheckbox = gui.Checkbox(group5, "buybot", "Buybot", false)
@@ -101,7 +106,7 @@ local color_alpha_slider = gui.Slider(group6, "color_transparency", "Color Theme
 
 static_curtime = globals.CurTime()
 
-function get_flick()
+local function get_flick()
 	local flick = false
 	if globals.CurTime() - static_curtime >= 0.22 then --credits @sakari
 		flick = true
@@ -117,7 +122,7 @@ callbacks.Register("CreateMove", function(cmd)
 		return
 	end
     
-	if LegitAAonEcheckbox:GetValue() and bit.band(cmd.buttons, bit.lshift(1, 5)) == 1 then
+	if LegitAAcheckbox:GetValue() and LegitAAonEcheckbox:GetValue() and bit.band(cmd.buttons, bit.lshift(1, 5)) == 1 then
 		return
 	end
 
@@ -136,11 +141,11 @@ callbacks.Register("CreateMove", function(cmd)
 		if static_curtime > globals.CurTime() then
 			static_curtime = globals.CurTime()
 		end
+
+		local slowspeed = 20
 		
 		if globals.CurTime() - static_curtime >= 0.10 and globals.CurTime() - static_curtime <= 1 then
 			slowspeed = 5
-		else
-			slowspeed = 20
 		end
 		
 		gui.SetValue("rbot.accuracy.movement.slowspeed", slowspeed)
@@ -235,7 +240,7 @@ callbacks.Register("CreateMove", function(cmd)
 				gui.SetValue("rbot.antiaim.base.rotation", 29 * rageside)
 				gui.SetValue("rbot.antiaim.advanced.autodir.edges", 0)    
 			else
-				if FreestandRageheckbox:GetValue() then
+				if FreestandRageCheckbox:GetValue() then
 					gui.SetValue("rbot.antiaim.base.rotation", -29)
 					gui.SetValue("rbot.antiaim.left.rotation", -29)     
 					gui.SetValue("rbot.antiaim.right.rotation", 29)    
@@ -388,7 +393,6 @@ callbacks.Register("FireGameEvent", function(event)
 	if not BuybotCheckbox:GetValue() then
 		return
 	end
- 
 
 	if event:GetName() == "round_prestart" then
 
@@ -432,7 +436,8 @@ client.AllowListener("round_prestart");
 
 local function get_active_gun()
     local lpaw = entities.GetLocalPlayer():GetWeaponID()
-    
+    local wclass = ""
+
 	if lpaw == 2 or lpaw == 3 or lpaw == 4 or lpaw == 30 or lpaw == 32 or lpaw == 36 or lpaw == 61 or lpaw == 63 then
         wclass="pistol"
     elseif lpaw == 9 then
@@ -457,7 +462,7 @@ local function get_active_gun()
 	return wclass
 end
 
-function dt_enabled()
+local function dt_enabled()
 	if entities.GetLocalPlayer() ~=nil and entities.GetLocalPlayer():IsAlive() then
 
 		local AwpDtEnable = gui.GetValue("rbot.accuracy.weapon.sniper.doublefire")
@@ -500,7 +505,7 @@ function dt_enabled()
 	end
 end
 
-function dt_mode()
+local function dt_mode()
 	if entities.GetLocalPlayer() ~=nil and entities.GetLocalPlayer():IsAlive() then
 
 		if not dt_enabled() then
@@ -529,16 +534,19 @@ function dt_mode()
 	end
 end
 
-
-function get_aa_text()
+local function get_aa_text()
 	local rage_aa = RageAAcheckbox:GetValue()
 	local hubert_aa = LogicCheckbox:GetValue()
 	local jitter = JitterRageCheckbox:GetValue() 	
 	local freestanding = FreestandRageCheckbox:GetValue()
+	local legit_aa = (LegitAAcheckbox:GetValue() and not rage_aa) or (LegitAAonEcheckbox:GetValue() and gui.GetValue("rbot.antiaim.advanced.pitch") == 0)
+	local legit_jitter = JitterCheckbox:GetValue()
+	local legit_hubertAA = LogicLegitCheckbox:GetValue()
+	local legit_freestanding = FreestandCheckbox:GetValue()
 	
 	aa_text = "aimware aa"
 
-	if rage_aa and not hubert_aa then
+	if rage_aa and not hubert_aa and not legit_aa then
 		if jitter then
 			if LowDeltaCheckbox:GetValue() then
 				aa_text = "jitter low"
@@ -566,21 +574,46 @@ function get_aa_text()
 				end
 			end
 		end
-	elseif hubert_aa then
+	elseif rage_aa and hubert_aa then
 		aa_text = "hubert aa"
+	elseif legit_aa then
+		if legit_jitter then
+			if SafeLegitAAcheckbox:GetValue() then
+				aa_text = "legit jitter safe"
+			else
+				aa_text = "legit jitter max"
+			end
+		else
+			if legit_freestanding then
+				if SafeLegitAAcheckbox:GetValue() then
+					aa_text = "legit freestand safe"
+				else
+					aa_text = "legit freestand max"
+				end
+			else
+				if legit_hubertAA then
+					aa_text = "legit hubert aa"
+				else
+				    if SafeLegitAAcheckbox:GetValue() then
+					    aa_text = "legit normal safe"
+				    else
+					    aa_text = "legit normal max"
+				    end
+				end
+			end
+		end
 	end
 	return aa_text
 end
 
-
-function get_dt_text()
+local function get_dt_text()
 	if not dt_enabled() then
 		return ""
 	end
 
 	local hs_enabled = gui.GetValue("rbot.antiaim.condition.shiftonshot")
 
-	dt_text = ""
+	local dt_text = ""
 
 	if hs_enabled then
 		if dt_mode() == 1 then 
@@ -598,7 +631,7 @@ function get_dt_text()
 	return dt_text
 end
 
-function get_mindmg()
+local function get_mindmg()
 	if entities.GetLocalPlayer() ~=nil and entities.GetLocalPlayer():IsAlive() then
 
 		local AwpMinDmg = gui.GetValue("rbot.accuracy.weapon.sniper.mindmg")
@@ -611,7 +644,8 @@ function get_mindmg()
 		local ShotgunMinDmg = gui.GetValue("rbot.accuracy.weapon.shotgun.mindmg")
 		local LightmgMinDmg = gui.GetValue("rbot.accuracy.weapon.lmg.mindmg")
 
-        wclass = get_active_gun()
+        local wclass = get_active_gun()
+		local min_dmg = 0
 
 		if wclass=="pistol" then
 			min_dmg = PistolMinDmg
@@ -726,9 +760,9 @@ callbacks.Register("Draw", function()
 	local width,height = draw.GetScreenSize()
 	local offset_to_center = 45
 
-	local red = math.sin(globals.RealTime() * 4) * 127 + 128;
-	local green = math.sin(globals.RealTime() * 4 + 2) * 127 + 128;
-	local blue = math.sin(globals.RealTime() * 4 + 4) * 127 + 128;
+	local red = math.sin(globals.RealTime() * 4) * 127 + 128
+	local green = math.sin(globals.RealTime() * 4 + 2) * 127 + 128
+	local blue = math.sin(globals.RealTime() * 4 + 4) * 127 + 128
 
 	if not CustomHud:GetValue() then
 		draw.Color(red,green,blue, 255)
@@ -790,9 +824,9 @@ callbacks.Register("Draw", function()
 	local width,height = draw.GetScreenSize()
 	local offset_to_center = 40
 
-	local red = math.sin(globals.RealTime() * 4) * 127 + 128;
-	local green = math.sin(globals.RealTime() * 4 + 2) * 127 + 128;
-	local blue = math.sin(globals.RealTime() * 4 + 4) * 127 + 128;
+	local red = math.sin(globals.RealTime() * 4) * 127 + 128
+	local green = math.sin(globals.RealTime() * 4 + 2) * 127 + 128
+	local blue = math.sin(globals.RealTime() * 4 + 4) * 127 + 128
 
 	if not CustomHud:GetValue() then
 		draw.Color(red,green,blue, 255)
@@ -869,9 +903,9 @@ callbacks.Register("Draw", function()
 		return
 	end
 
-    text = "aimware.net | hubertlua"
+    local text = "aimware.net | hubertlua"
     
-    textlen = string.len(text) * 7
+    local textlen = string.len(text) * 7
 
 	local width,height = draw.GetScreenSize()
 
@@ -912,7 +946,7 @@ if not imagepack_lib_installed then
         "https://raw.githubusercontent.com/287871/aimware/main/imagepack_icons.lua",
         function(ctx) --Network cache from Yukine
             file.Write("imagepack_icons.lua", ctx)
-            network_error = ctx
+            local network_error = ctx
         end
     )
 end
@@ -1064,13 +1098,11 @@ local function weapon_icon(x, y, size, clr)
     draw.SetTexture(nil)
 end
 
-
 --DRAW THE CUSTOM HUD NIGGERS--
 
 local time = 0.1
 
 local alpha = 0
-local globals_frametime = globals.FrameTime
 local texture =
     draw.CreateTexture(
     common.RasterizeSVG(
@@ -1089,7 +1121,7 @@ local texture =
 
 local function on_fire_fame_event(event)
 	if not CustomHud:GetValue() then
-		client.SetConVar('cl_drawhud', 1, true)
+		client.SetConVar("cl_drawhud", 1, true)
 		return
 	end
 
@@ -1108,11 +1140,11 @@ end
 callbacks.Register("Draw", function()
 
     if not CustomHud:GetValue() then
-		client.SetConVar('cl_drawhud', 1, true)
+		client.SetConVar("cl_drawhud", 1, true)
 		return
 	end
     
-	client.SetConVar('cl_drawhud', 0, true)
+	client.SetConVar("cl_drawhud", 0, true)
 
 	if entities.GetLocalPlayer() == nil then
 	    return
@@ -1186,12 +1218,6 @@ end)
 
 callbacks.Register("FireGameEvent", on_fire_fame_event) --paste moment
 client.AllowListener("player_death")
-
---aspect ratio--
-
-callbacks.Register("Draw", function()
-	client.SetConVar('r_aspectratio', AspectRatioSlider:GetValue() / 100, true)
-end)
 
 
 --THIS KILLFEED BELOW IS ALMOST FULLY PASTED I DO NOT TAKE ANY CREDITS--
@@ -1351,36 +1377,36 @@ local border_colour = {128, 0, 0, 255}
 local ct_colour = {79, 158, 222, 255}
 local tt_colour = {199, 162, 71, 255}
 
-local render = {};
+local render = {}
 
 render.outline = function( x, y, w, h, col )
-	draw.Color( col[1], col[2], col[3], col[4] );
-	draw.OutlinedRect( x, y, x + w, y + h );
+	draw.Color( col[1], col[2], col[3], col[4] )
+	draw.OutlinedRect( x, y, x + w, y + h )
 end
 
 render.rect = function( x, y, w, h, col )
-	draw.Color( col[1], col[2], col[3], col[4] );
-	draw.FilledRect( x, y, x + w, y + h );
+	draw.Color( col[1], col[2], col[3], col[4] )
+	draw.FilledRect( x, y, x + w, y + h )
 end
 
 render.rect2 = function( x, y, w, h )
-	draw.FilledRect( x, y, x + w, y + h );
+	draw.FilledRect( x, y, x + w, y + h )
 end
 
 render.gradient = function( x, y, w, h, col1, col2, is_vertical )
-	render.rect( x, y, w, h, col1 );
+	render.rect( x, y, w, h, col1 )
 
-	local r, g, b = col2[1], col2[2], col2[3];
+	local r, g, b = col2[1], col2[2], col2[3]
 
 	if is_vertical then
 		for i = 1, h do
-			local a = i / h * 255;
-			render.rect( x, y + i, w, 1, { r, g, b, a } );
+			local a = i / h * 255
+			render.rect( x, y + i, w, 1, { r, g, b, a } )
 		end
 	else
 		for i = 1, w do
-			local a = i / w * 255;
-			render.rect( x + i, y, 1, h, { r, g, b, a } );
+			local a = i / w * 255
+			render.rect( x + i, y, 1, h, { r, g, b, a } )
 		end
 	end
 end
@@ -1609,9 +1635,9 @@ callbacks.Register("Draw", function()
 		return
 	end
 
-	local red = math.sin(globals.RealTime() * 4) * 127 + 128;
-	local green = math.sin(globals.RealTime() * 4 + 2) * 127 + 128;
-	local blue = math.sin(globals.RealTime() * 4 + 4) * 127 + 128;
+	local red = math.sin(globals.RealTime() * 4) * 127 + 128
+	local green = math.sin(globals.RealTime() * 4 + 2) * 127 + 128
+	local blue = math.sin(globals.RealTime() * 4 + 4) * 127 + 128
 
 	gui.SetValue("esp.chams.backtrack.visible.clr", red,green,blue,255 )
 	gui.SetValue("esp.chams.backtrack.occluded.clr", red,green,blue,255 )
@@ -1656,9 +1682,18 @@ callbacks.Register("Draw", function()
 		return
 	end
 
-	local poop = 255 / 0.25 * globals.FrameTime()
+	local fast = FastHitmarkerCheckbox:GetValue()
 
-    if crosshair_time + 0.25 > globals.RealTime() then
+	local poop = 255 / 0.2 * globals.FrameTime()
+	local thingy_time = 1
+
+    if fast then
+		poop = 255 / 0.09 * globals.FrameTime()
+		thingy_time = 0.09
+	end
+
+
+    if crosshair_time + thingy_time > globals.RealTime() then
 		factor = 1
         crossalpha = 255
     else
@@ -1670,10 +1705,10 @@ callbacks.Register("Draw", function()
 	
 	if crossalpha > 0 then
 		draw.Color(200, 200, 200, crossalpha)
-		draw.Line(x / 2 - 5 * factor, y / 2 - 5 * factor, x / 2 - 12 * factor, y / 2 - 12 * factor)
-		draw.Line(x / 2 - 5 * factor, y / 2 + 5 * factor, x / 2 - 12 * factor, y / 2 + 12 * factor)
-		draw.Line(x / 2 + 5 * factor, y / 2 + 5 * factor, x / 2 + 12 * factor, y / 2 + 12 * factor)
-		draw.Line(x / 2 + 5 * factor, y / 2 - 5 * factor, x / 2 + 12 * factor, y / 2 - 12 * factor)
+		draw.Line(x / 2 - 3 * factor, y / 2 - 3 * factor, x / 2 - 10 * factor, y / 2 - 10 * factor)
+		draw.Line(x / 2 - 3 * factor, y / 2 + 3 * factor, x / 2 - 10 * factor, y / 2 + 10 * factor)
+		draw.Line(x / 2 + 3 * factor, y / 2 + 3 * factor, x / 2 + 10 * factor, y / 2 + 10 * factor)
+		draw.Line(x / 2 + 3 * factor, y / 2 - 3 * factor, x / 2 + 10 * factor, y / 2 - 10 * factor)
 	end
 
 end)
@@ -1706,7 +1741,6 @@ callbacks.Register("Draw", function()
     if color_theme:GetValue() == 0 then
         return
     end
-
        
        --RED
     if color_theme:GetValue() == 1 then
@@ -1818,9 +1852,9 @@ callbacks.Register("Draw", function()
         
         --RAINBOW
     elseif color_theme:GetValue() == 7 then
-        local red = math.sin(globals.RealTime() * 4) * 127 + 128;
-	    local green = math.sin(globals.RealTime() * 4 + 2) * 127 + 128;
-	    local blue = math.sin(globals.RealTime() * 4 + 4) * 127 + 128;
+        local red = math.sin(globals.RealTime() * 4) * 127 + 128
+	    local green = math.sin(globals.RealTime() * 4 + 2) * 127 + 128
+	    local blue = math.sin(globals.RealTime() * 4 + 4) * 127 + 128
 
         set("theme.footer.text", red, green, blue, color_alpha_slider:GetValue())
 
@@ -1859,9 +1893,93 @@ local function hitsoundshit(e)
 	end
 
     if (e:GetName() == "player_hurt") then
-		local hitsoundcmd = "play " .. CustomHitsoundText:GetValue();
-        client.Command(hitsoundcmd, true);
+		local hitsoundcmd = "play " .. CustomHitsoundText:GetValue()
+        client.Command(hitsoundcmd, true)
 	end
 end
 
 callbacks.Register("FireGameEvent", hitsoundshit)
+
+local radio_channels = {
+    { name = "None", url = "none" },
+	{ name = "8 bit", url = "http://8bit.fm:8000/live" },
+    { name = "Hardcore", url = "http://uk5.internet-radio.com:8270/" },
+    { name = "German Rap", url = "https://streams.bigfm.de/bigfm-deutschrap-128-mp3" }
+}
+
+ffi.cdef[[
+    void* LoadLibraryA(const char* lpLibFileName);
+    void* GetProcAddress(void* hModule, const char* lpProcName);
+]]
+
+if ffi.C.LoadLibraryA("bass.dll") == nil then 
+	return 
+end
+
+if(ffi.cast("int(__stdcall*)()", ffi.C.GetProcAddress(ffi.C.LoadLibraryA("bass.dll"), "BASS_ErrorGetCode"))() ~= 0) then 
+	return 
+end
+
+local BASS_Init = ffi.cast("int(__stdcall*)(int, unsigned long, unsigned long, void*, void*)", ffi.C.GetProcAddress(ffi.C.LoadLibraryA("bass.dll"), "BASS_Init"))
+local BASS_Free = ffi.cast("int(__stdcall*)()", ffi.C.GetProcAddress(ffi.C.LoadLibraryA("bass.dll"), "BASS_Free"))
+local BASS_StreamCreateURL = ffi.cast("unsigned long(__stdcall*)(const char *, unsigned long, unsigned long, void*, void*)", ffi.C.GetProcAddress(ffi.C.LoadLibraryA("bass.dll"), "BASS_StreamCreateURL"))
+local BASS_ChannelSetAttribute = ffi.cast("int(__stdcall*)( unsigned long, unsigned long, float )", ffi.C.GetProcAddress(ffi.C.LoadLibraryA("bass.dll"), "BASS_ChannelSetAttribute"))
+local BASS_ChannelPlay = ffi.cast("int( __stdcall*)(unsigned long, bool)", ffi.C.GetProcAddress(ffi.C.LoadLibraryA("bass.dll"), "BASS_ChannelPlay"))
+local BASS_ChannelStop = ffi.cast("int(__stdcall*)(unsigned long)", ffi.C.GetProcAddress(ffi.C.LoadLibraryA("bass.dll"), "BASS_ChannelStop"))
+
+local stream = false
+local currently_playing = false
+local stream_backup = nil
+
+BASS_Init(-1, 44100, 0, nil, nil)
+
+local names = {}
+for _, radio_channels in ipairs(radio_channels) do
+    table.insert(names, radio_channels.name)
+end
+
+local RadioChannelCombo = gui.Combobox(group4, "radio_channel", "Channel", unpack(names))
+RadioChannelCombo:SetDescription("Channel for the radio to play")
+local RadioVolumeSlider = gui.Slider(group4, "radio_volume", "Volume", 100, 0, 100)
+RadioVolumeSlider:SetDescription("Volume for the channel")
+
+callbacks.Register("Draw", function()
+    local channel = RadioChannelCombo:GetValue()
+
+    if (RadioCheckbox:GetValue() == false) then 
+        BASS_ChannelStop(stream)
+        currently_playing = false
+        return
+    end
+
+    if (currently_playing and channel_backup ~= channel) then
+        BASS_ChannelStop(stream)
+        currently_playing = false
+        stream = 0
+        channel_backup = channel
+    end
+
+    if (currently_playing == false and channel ~= 0) then
+        if (stream_backup ~= stream) then
+            stream = BASS_StreamCreateURL(radio_channels[channel+1].url, 0, 0, nil, nil)
+            stream_backup = stream
+        end
+        BASS_ChannelPlay(stream, false)
+        currently_playing = true
+    end
+
+    if (currently_playing and stream ~= 0) then
+        BASS_ChannelSetAttribute(stream, 2, RadioVolumeSlider:GetValue() / 100)
+    end
+end)
+
+callbacks.Register("Unload", function()
+	BASS_ChannelStop(stream)
+    BASS_Free()
+end)
+
+--aspect ratio--
+
+callbacks.Register("Draw", function()
+	client.SetConVar("r_aspectratio", AspectRatioSlider:GetValue() / 100, true)
+end)
