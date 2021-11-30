@@ -1,7 +1,7 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 4.0 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 4.1 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -903,27 +903,29 @@ callbacks.Register("Draw", function()
 		return
 	end
 
-    local text = "aimware.net | hubertlua"
+	local text = "aimware.net | hubertlua | https://shoppy.gg/@hubertreal"
+	local text2 = "aimware.net | hubertlua"
     
     local textlen = string.len(text) * 7
+	local textlen2 = string.len(text2) * 7
 
 	local width,height = draw.GetScreenSize()
 
 	--left
-	gradient(width - textlen - 20, 8, 2, textlen / 7, 0, 0, 0, 0, 255, 58, 47, 255, false)
+	gradient(width - textlen - 20, 8, 2, textlen2 / 7 - 5, 0, 0, 0, 0, 255, 58, 47, 255, false)
 
 	--right
-	gradient(width - 18, 10, 2, textlen / 7 - 2, 255, 58, 47, 255, 0, 0, 0, 0, false)
+	gradient(width - 32, 10, 2, textlen2 / 7 - 2, 255, 58, 47, 255, 0, 0, 0, 0, false)
 
 	--top
 	gradient(width - textlen - 20, 8, textlen / 2, 2, 0, 0, 0, 0, 255, 58, 47, 255, true)
 	
 	--bottom
-	gradient(width - (textlen / 2) - 16, textlen / 6 + 3, textlen / 2, 2, 255, 58, 47, 255, 0, 0, 0, 0, true)
+	gradient(width - (textlen / 2) - 30, textlen2 / 6 + 3, textlen / 2, 2, 255, 58, 47, 255, 0, 0, 0, 0, true)
 
 	--background
 	draw.Color(10, 10, 10, 255)
-    draw.FilledRect(width - textlen - 18, 10, width - 18, textlen / 6 + 3)
+    draw.FilledRect(width - textlen - 18, 10, width - 32, textlen2 / 6 + 3)
 	
 	--text
 	draw.Color(255, 255, 255, 255)
