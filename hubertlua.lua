@@ -1,7 +1,7 @@
 --autoupdater--
 local script_name = GetScriptName()
 
-if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 4.1 then
+if http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/version.txt") ~= 4.5 then
     file.Delete(script_name)
     file.Open(script_name,"w")
     file.Write(script_name,http.Get("https://raw.githubusercontent.com/ObamaAteMyKids/hubertlua/main/hubertlua.lua"))
@@ -116,7 +116,7 @@ local function get_flick()
 	return flick
 end
 
-callbacks.Register("CreateMove", function(cmd)
+function rage_aa(cmd)
 
 	if not RageAAcheckbox:GetValue() then
 		return
@@ -268,10 +268,7 @@ callbacks.Register("CreateMove", function(cmd)
 			end
 		end
 	end
-end)
-
-
---LEGIT AA--
+end
 
 local save = false
 local saved_values = {
@@ -285,7 +282,7 @@ local saved_values = {
     ["rbot.antiaim.condition.use"] = gui.GetValue("rbot.antiaim.condition.use")
 }
 
-callbacks.Register("CreateMove", function(cmd)
+function legit_aa(cmd)
 
 	if not LegitAAcheckbox:GetValue() then 
 		if save then
@@ -294,7 +291,8 @@ callbacks.Register("CreateMove", function(cmd)
 			end
 			save = false
 		end
-		    return
+
+		return
 	end
 
 	if LegitAAcheckbox:GetValue() and not LegitAAonEcheckbox:GetValue() and RageAAcheckbox:GetValue() then 
@@ -381,14 +379,13 @@ callbacks.Register("CreateMove", function(cmd)
 	
 		end
 	end
-end)
-
+end
 
 --MISC SHIT--
 
 --BUYBOT--
 
-callbacks.Register("FireGameEvent", function(event)
+function buybot(event)
 
 	if not BuybotCheckbox:GetValue() then
 		return
@@ -428,7 +425,7 @@ callbacks.Register("FireGameEvent", function(event)
 			client.Command("buy defuser")
 		end
 	end
-end)
+end
 
 client.AllowListener("round_prestart");
 
@@ -476,7 +473,8 @@ local function dt_enabled()
 		local Lightmgenable = gui.GetValue("rbot.accuracy.weapon.lmg.doublefire")
 	    local Knifeenable = gui.GetValue("rbot.accuracy.weapon.knife.doublefire")
 
-        wclass = get_active_gun()
+        local wclass = get_active_gun()
+		local is_dt_on = false
 
 		if wclass=="pistol" and (PistolDtEnable==1 or PistolDtEnable==2)  then
 			is_dt_on = true
@@ -523,7 +521,8 @@ local function dt_mode()
 		local Lightmgenable = gui.GetValue("rbot.accuracy.weapon.lmg.doublefire")
 	    local Knifeenable = gui.GetValue("rbot.accuracy.weapon.knife.doublefire")
  
-        wclass = get_active_gun()
+        local wclass = get_active_gun()
+		local doubletap_mode = 0
 
 		if wclass == "pistol" and (PistolDtEnable == 1) or wclass == "hpistol" and (HeavypistolDtEnable == 1) or wclass == "smg" and (SmgDtEnable == 1) or wclass == "sniper" and (AwpDtEnable == 1) or wclass == "scout" and (Ssg08DtEnable == 1) or wclass == "rifle" and (RifleDtEnable == 1) or wclass == "shotgun" and (ShotgunDtEnable == 1) or wclass == "asniper" and (AutoDtEnable == 1) or wclass == "lmg" and (Lightmgenable == 1) or wclass == "knife" and (Knifeenable == 1) then
 			doubletap_mode = 1 
@@ -544,7 +543,7 @@ local function get_aa_text()
 	local legit_hubertAA = LogicLegitCheckbox:GetValue()
 	local legit_freestanding = FreestandCheckbox:GetValue()
 	
-	aa_text = "aimware aa"
+	local aa_text = "aimware aa"
 
 	if rage_aa and not hubert_aa and not legit_aa then
 		if jitter then
@@ -574,7 +573,7 @@ local function get_aa_text()
 				end
 			end
 		end
-	elseif rage_aa and hubert_aa then
+	elseif rage_aa and hubert_aa and not legit_aa then
 		aa_text = "hubert aa"
 	elseif legit_aa then
 		if legit_jitter then
@@ -674,7 +673,7 @@ end
 
 --DRAW--
 
-callbacks.Register("Draw", function()
+function draw_indicators()
 	if not IndicatorsCheckbox:GetValue() then
 		return
 	end
@@ -736,11 +735,11 @@ callbacks.Register("Draw", function()
 
 	draw.Color(214, 103, 146, 255)
 	draw.Text(width / 2 - (string_x4 / 2), height / 2 + 10 + offset + offset2, mindmg)
-end)
+end
 
 --AA ARROWS--
 
-callbacks.Register("Draw", function()
+function draw_aa_arrows()
 	if not AAarrowsCheckbox:GetValue() then
 		return
 	end
@@ -753,9 +752,9 @@ callbacks.Register("Draw", function()
 	    return
     end
 
-	is_manual_left = ManualLeftCheckbox:GetValue() 
-	is_manual_right = ManualRightCheckbox:GetValue() 
-	is_manual_forward = ManualForwardCheckbox:GetValue() 
+	local is_manual_left = ManualLeftCheckbox:GetValue() 
+	local is_manual_right = ManualRightCheckbox:GetValue() 
+	local is_manual_forward = ManualForwardCheckbox:GetValue() 
 
 	local width,height = draw.GetScreenSize()
 	local offset_to_center = 45
@@ -777,11 +776,11 @@ callbacks.Register("Draw", function()
 	elseif is_manual_forward then
 		draw.Triangle(width / 2 - 10, height / 2 - offset_to_center, width / 2 + 10, height / 2 - offset_to_center, width / 2, height / 2 - offset_to_center - 20)
 	end
-end)
+end
 
 --INVERT INDICATOR--
 
-callbacks.Register("Draw", function()
+function draw_inverts()
 
 	if not InvertIndicatorCheckbox:GetValue() then
 		return
@@ -839,7 +838,7 @@ callbacks.Register("Draw", function()
 	elseif side == -1 then
 		draw.FilledRect(width / 2 - offset_to_center, height / 2 - 10, width / 2 - offset_to_center + 4, height / 2 + 10)
 	end
-end)
+end
 
 --WATERMARK--
 
@@ -898,7 +897,7 @@ function gradient(x, y, w, h, r1, g1, b1, a1, r2, g2, b2, a2, ltr)
     end
 end
 
-callbacks.Register("Draw", function()
+function draw_watermark()
 	if not WatermarkCheckbox:GetValue() then
 		return
 	end
@@ -931,7 +930,7 @@ callbacks.Register("Draw", function()
 	draw.Color(255, 255, 255, 255)
 	draw.Text(width - textlen - 13, 14, text)
 
-end)
+end
 
 --custom hud--
 
@@ -1062,6 +1061,8 @@ local function get_max_clip() --hardcoded shitway cuz cant figure ffi out moment
 	    return
     end
 
+	local max_clip = 0
+
 	local lpaw = entities.GetLocalPlayer():GetWeaponID()
 	if lpaw == 1 or lpaw == 25 or lpaw == 29 then max_clip = 7 
 	elseif lpaw == 2 or lpaw == 7 or lpaw == 8 or lpaw == 10 or lpaw == 16 or lpaw == 17 or lpaw == 23 or lpaw == 33 or lpaw == 34 or lpaw == 39 or lpaw == 60 then max_clip = 30 
@@ -1100,7 +1101,7 @@ local function weapon_icon(x, y, size, clr)
     draw.SetTexture(nil)
 end
 
---DRAW THE CUSTOM HUD NIGGERS--
+--DRAW THE CUSTOM HUD--
 
 local time = 0.1
 
@@ -1121,7 +1122,7 @@ local texture =
     )
 )
 
-local function on_fire_fame_event(event)
+function on_fire_game_event(event)
 	if not CustomHud:GetValue() then
 		client.SetConVar("cl_drawhud", 1, true)
 		return
@@ -1139,7 +1140,7 @@ local function on_fire_fame_event(event)
     end
 end
 
-callbacks.Register("Draw", function()
+function draw_hud()
 
     if not CustomHud:GetValue() then
 		client.SetConVar("cl_drawhud", 1, true)
@@ -1216,9 +1217,8 @@ callbacks.Register("Draw", function()
 
 	--INDICATORS--
 
-end)
+end
 
-callbacks.Register("FireGameEvent", on_fire_fame_event) --paste moment
 client.AllowListener("player_death")
 
 
@@ -1336,7 +1336,7 @@ client.AllowListener("player_death")
 client.AllowListener("round_start")
 client.AllowListener("round_announce_match_start")
 client.AllowListener("client_disconnect")
-callbacks.Register("FireGameEvent", function(event)
+function customhudshit(event)
 	if not CustomHud:GetValue() then
 		return
 	end
@@ -1372,7 +1372,7 @@ callbacks.Register("FireGameEvent", function(event)
 
 		table.insert(kills, {attacker, assister_name, assisted_flash, weapon_name, penetrated, headshot, victim, globals.CurTime()})
 	end
-end)
+end
 
 local bg_colour = {0, 0, 0, 213}
 local border_colour = {128, 0, 0, 255}
@@ -1417,7 +1417,7 @@ local charset = {}
 for i = 48,  57 do table.insert(charset, string.char(i)) end
 for i = 65,  90 do table.insert(charset, string.char(i)) end
 
-callbacks.Register("Draw", function()
+function draw_killfeed()
 	if not CustomHud:GetValue() then
 		return
 	end
@@ -1628,11 +1628,11 @@ callbacks.Register("Draw", function()
             draw.Text(current_width + 10, start_y + y_offset, victim_name)
 		end
 	end
-end)
+end
 
 --rainbow bt chams--
 
-callbacks.Register("Draw", function()
+function draw_rainbow_bt_chams()
 	if not RainbowBacktrackChamsCheckbox:GetValue() then
 		return
 	end
@@ -1643,7 +1643,7 @@ callbacks.Register("Draw", function()
 
 	gui.SetValue("esp.chams.backtrack.visible.clr", red,green,blue,255 )
 	gui.SetValue("esp.chams.backtrack.occluded.clr", red,green,blue,255 )
-end)
+end
 
 --crosshair hitmarker--
 local crosshair_time = 0
@@ -1670,12 +1670,10 @@ local function hitshit(e)
 	end
 end
 
-callbacks.Register("FireGameEvent", hitshit)
-
 local crossalpha = 0
 local factor = 0
 
-callbacks.Register("Draw", function()
+function draw_hitmarker()
 	if entities.GetLocalPlayer() == nil then 
 		return 
 	end
@@ -1713,13 +1711,13 @@ callbacks.Register("Draw", function()
 		draw.Line(x / 2 + 3 * factor, y / 2 - 3 * factor, x / 2 + 10 * factor, y / 2 - 10 * factor)
 	end
 
-end)
+end
 
 --MENU THEMES--
 
 set = gui.SetValue
 
-callbacks.Register("Draw", function()
+function draw_menutheme()
     if main_theme:GetValue() == 0 then
         return
     end
@@ -1875,7 +1873,7 @@ callbacks.Register("Draw", function()
         set("theme.ui.border", red, green, blue, color_alpha_slider:GetValue())
     end
 
-end)
+end
 
 local function hitsoundshit(e)
 	if entities.GetLocalPlayer() == nil then 
@@ -1899,8 +1897,6 @@ local function hitsoundshit(e)
         client.Command(hitsoundcmd, true)
 	end
 end
-
-callbacks.Register("FireGameEvent", hitsoundshit)
 
 local radio_channels = {
     { name = "None", url = "none" },
@@ -1945,7 +1941,7 @@ RadioChannelCombo:SetDescription("Channel for the radio to play")
 local RadioVolumeSlider = gui.Slider(group4, "radio_volume", "Volume", 100, 0, 100)
 RadioVolumeSlider:SetDescription("Volume for the channel")
 
-callbacks.Register("Draw", function()
+function radio()
     local channel = RadioChannelCombo:GetValue()
 
     if (RadioCheckbox:GetValue() == false) then 
@@ -1973,7 +1969,7 @@ callbacks.Register("Draw", function()
     if (currently_playing and stream ~= 0) then
         BASS_ChannelSetAttribute(stream, 2, RadioVolumeSlider:GetValue() / 100)
     end
-end)
+end
 
 callbacks.Register("Unload", function()
 	BASS_ChannelStop(stream)
@@ -1982,6 +1978,39 @@ end)
 
 --aspect ratio--
 
-callbacks.Register("Draw", function()
+function aspect_ratio()
 	client.SetConVar("r_aspectratio", AspectRatioSlider:GetValue() / 100, true)
-end)
+end
+
+--callbacks--
+
+function fge_main(event)
+	buybot(event)
+	on_fire_game_event(event)
+	customhudshit(event)
+	hitshit(event)
+    hitsoundshit(event)
+end
+
+function createmove_main(cmd)
+	rage_aa(cmd)
+	legit_aa(cmd)
+end
+
+function draw_main()
+	draw_indicators()
+	draw_aa_arrows()
+	draw_inverts()
+	draw_watermark()
+	draw_hud()
+	draw_killfeed()
+	draw_rainbow_bt_chams()
+	draw_menutheme()
+	draw_hitmarker()
+    radio()
+	aspect_ratio()
+end
+
+callbacks.Register("FireGameEvent", fge_main)
+callbacks.Register("CreateMove", createmove_main)
+callbacks.Register("Draw", draw_main)
